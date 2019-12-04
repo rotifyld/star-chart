@@ -10,12 +10,13 @@ type alias Star =
     , proper : Maybe String
     , ra : Float
     , dec : Float
+    , mag : Float
     }
 
 
 csv : Csv
 csv =
-    Csv.parse properData
+    Csv.parse nakedData
 
 
 nonEmpty : String -> Maybe String
@@ -36,8 +37,9 @@ starDecoder record =
                 (Maybe.withDefault -1 (String.toInt id))
                 (nonEmpty bf)
                 (nonEmpty proper)
-                (Maybe.withDefault -1 (String.toFloat ra))
-                (Maybe.withDefault -1 (String.toFloat dec))
+                (Maybe.withDefault -1 (String.toFloat rarad))
+                (Maybe.withDefault -1 (String.toFloat decrad))
+                (Maybe.withDefault -1 (String.toFloat mag))
                 |> Just
 
         _ ->
