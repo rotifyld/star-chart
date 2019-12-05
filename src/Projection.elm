@@ -1,18 +1,31 @@
 module Projection exposing (..)
 
-import Stars exposing (Star)
+
+type alias Projection =
+    ( Float, Float ) -> ( Float, Float )
 
 
-stereographic : Star -> ( Float, Float )
-stereographic star =
+visibleStars : ( Float, Float ) -> ( Float, Float ) -> Bool
+visibleStars ( modelRa, modelDec ) ( starRa, starDec ) =
+    --    TODO
+    True
+
+
+stereographic : ( Float, Float ) -> ( Float, Float )
+stereographic ( dec, ra ) =
     let
         x =
-            cos star.dec * sin star.ra
+            cos dec * sin ra
 
         y =
-            sin star.dec
+            sin dec
 
         z_ =
-            1 + cos star.ra * cos star.dec
+            1 + cos ra * cos dec
     in
     ( x / z_, y / z_ )
+
+
+stereographicFrom : ( Float, Float ) -> ( Float, Float ) -> ( Float, Float )
+stereographicFrom ( decView, raView ) ( decStar, raStar ) =
+    stereographic ( raStar - raView, decStar - decView )

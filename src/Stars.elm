@@ -1,6 +1,7 @@
-module Stars exposing (Star, getList, getString)
+module Stars exposing (Star, getList, getString, projected)
 
 import Csv exposing (Csv)
+import Projection exposing (Projection)
 import RawData exposing (..)
 
 
@@ -8,10 +9,14 @@ type alias Star =
     { id : Int
     , bayer : Maybe String
     , proper : Maybe String
-    , ra : Float
-    , dec : Float
+    , radialPos : ( Float, Float )
     , mag : Float
     }
+
+
+projected : Projection -> Star -> ( Star, ( Float, Float ) )
+projected projection star =
+    ( star, projection star.radialPos )
 
 
 csv : Csv
@@ -33,14 +38,17 @@ starDecoder : List String -> Maybe Star
 starDecoder record =
     case record of
         _ :: id :: hip :: hd :: hr :: gl :: bf :: proper :: ra :: dec :: dist :: pmra :: pmdec :: rv :: mag :: absmag :: spect :: ci :: x :: y :: z :: vx :: vy :: vz :: rarad :: decrad :: pmrarad :: pmdecrad :: bayer :: flam :: con :: comp :: comp_primary :: base :: lum :: var :: var_min :: var_max ->
-            Star
-                (Maybe.withDefault -1 (String.toInt id))
-                (nonEmpty bf)
-                (nonEmpty proper)
-                (Maybe.withDefault -1 (String.toFloat rarad))
-                (Maybe.withDefault -1 (String.toFloat decrad))
-                (Maybe.withDefault -1 (String.toFloat mag))
-                |> Just
+            let
+                star : Star
+                star =
+                    { id = Maybe.withDefault -1 (String.toInt id)
+                    , bayer = nonEmpty bf
+                    , proper = nonEmpty proper
+                    , radialPos = ( Maybe.withDefault -1 (String.toFloat rarad), Maybe.withDefault -1 (String.toFloat decrad) )
+                    , mag = Maybe.withDefault 10 (String.toFloat mag)
+                    }
+            in
+            Just star
 
         _ ->
             Nothing
@@ -58,20 +66,25 @@ maybeToString maybe =
 
 toString : List Star -> String
 toString stars =
-    stars
-        |> List.map
-            (\s ->
-                String.concat
-                    [ "{"
-                    , maybeToString s.proper
-                    , ", "
-                    , String.fromFloat s.ra
-                    , ", "
-                    , String.fromFloat s.dec
-                    , "}"
-                    ]
-            )
-        |> String.join "\n"
+    ""
+
+
+
+-- TODO fix this
+--    stars
+--        |> List.map
+--            (\s ->
+--                String.concat
+--                    [ "{"
+--                    , maybeToString s.proper
+--                    , ", "
+--                    , String.fromFloat s.ra
+--                    , ", "
+--                    , String.fromFloat s.idd
+--                    , "}"
+--                    ]
+--            )
+--        |> String.join "\n"
 
 
 getList : List Star
